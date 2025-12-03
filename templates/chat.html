@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OODaiP聊天室 - 房间</title>
+  <link rel="stylesheet" href="/static/css/base.css" />
+  <style>
+    .emoji-btn { background:#ffc13b; color:#202020; }
+    .sys { color:#888; text-align:center; }
+    .quick-bar { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+    .quick-bar .btn-small { padding:6px 10px; border:1px solid #d9dfe6; border-radius:8px; background:#eef3ff; color:#2f56c3; cursor:pointer; }
+    .quick-bar .btn-small:hover { background:#e3e9ff; }
+    
+    /* AI 聊天样式 */
+    .ai-chat-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 0;
+      color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .ai-chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    .ai-name {
+      font-size: 16px;
+    }
+    .ai-status {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .ai-chat-content {
+      background: rgba(255,255,255,0.1);
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 40px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    /* 打字动画 */
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+    }
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      margin: 0 2px;
+      background-color: white;
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="room-title">OODaiP 聊天室</div>
+      <div class="actions">
+        <button id="historyBtn" class="btn" title="历史记录">历史记录</button>
+        <button id="logoutBtn" class="btn" title="退出">退出</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <aside class="sidebar">
+        <div class="user-list">
+          <div>在线成员</div>
+          <div class="list" id="userList"></div>
+        </div>
+      </aside>
+
+      <section class="chat">
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+          <div class="quick-bar">
+            <button id="cmdCheng" class="btn-small">@成小理</button>
+            <button id="cmdMusic" class="btn-small">@音乐一下</button>
+            <button id="cmdMovie" class="btn-small">@电影</button>
+            <button id="cmdWeather" class="btn-small">@天气</button>
+            <button id="cmdNews" class="btn-small">@新闻</button>
+            <button id="cmdShort" class="btn-small">@小视频</button>
+          </div>
+          <textarea id="input" placeholder="输入消息，支持 @功能与 emoji 😀"></textarea>
+          <button id="emojiBtn" class="btn emoji-btn">😀</button>
+          <button id="sendBtn" class="btn">发送</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const nickname = "{{ escape(nickname) }}";
+    const wsUrl = "{{ escape(ws_url) }}";
+    const isHttpsPage = window.location.protocol === 'https:';
+    // 只用 http/ws：如果当前页面是 https，明确提示用户改用 http 页面访问
+    if (isHttpsPage && wsUrl.startsWith('ws://')) {
+      console.warn('[WS] 当前页面为 HTTPS，ws:// 将被浏览器阻止，请改用 http 页面访问');
+    }
+
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const emojiBtn = document.getElementById('emojiBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const historyBtn = document.getElementById('historyBtn');
+    // 快捷 @ 功能按钮
+    const cmdCheng = document.getElementById('cmdCheng');
+    const cmdMusic = document.getElementById('cmdMusic');
+    const cmdMovie = document.getElementById('cmdMovie');
+    const cmdWeather = document.getElementById('cmdWeather');
+    const cmdNews = document.getElementById('cmdNews');
+    const cmdShort = document.getElementById('cmdShort');
+
+    // Socket
+    let ws;
+    function connect() {
+      const connectUrl = wsUrl; // 按配置直连，不做协议自动升级/降级
+      addSystem('正在连接：' + connectUrl);
+      console.log('[WS] page:', window.location.href, 'protocol:', window.location.protocol, 'connectUrl:', connectUrl);
+      // 如果是 https 页面且 connectUrl 是 ws://，浏览器会报错，这里仅提示
+      if (isHttpsPage && connectUrl.startsWith('ws://')) {
+        addSystem('当前页面为 HTTPS，不能连接 ws://，请使用 http 页面访问');
+      }
+      ws = new WebSocket(connectUrl);
+      ws.addEventListener('open', () => {
+        addSystem('已连接服务器');
+      });
+      ws.addEventListener('message', (evt) => {
+        try {
+          const msg = JSON.parse(evt.data);
+          if(msg.type === 'system') {
+            addSystem(msg.text);
+          } else if(msg.type === 'chat') {
+            addMessage(msg.nickname, msg.text, msg.time, msg.is_safe_html);
+          }
+        } catch(e) {
+          addMessage('未知', evt.data);
+        }
+      });
+      ws.addEventListener('close', (evt) => {
+        addSystem('连接已关闭');
+        console.warn('[WS] closed code:', evt && evt.code, 'reason:', evt && evt.reason);
+      });
+      ws.addEventListener('error', (evt) => {
+        addSystem('连接错误');
+        console.error('[WS] error event:', evt);
+      });
+    }
+    connect();
+
+    // UI helpers
+    function addSystem(text){
+      const div = document.createElement('div');
+      div.className = 'message sys';
+      div.textContent = text;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    function addMessage(user, text, time, isSafeHtml = false){
+      const wrap = document.createElement('div');
+      wrap.className = 'message';
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = user + '：';
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      if (isSafeHtml) {
+        bubble.innerHTML = text;
+      } else {
+        bubble.textContent = text;
+      }
+      wrap.appendChild(meta);
+      wrap.appendChild(bubble);
+      messagesEl.appendChild(wrap);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    // 处理 AI 聊天容器的 SSE 连接
+    function handleAIChatContainers() {
+      // 查找所有未处理的 AI 聊天容器
+      const containers = document.querySelectorAll('.ai-chat-container:not([data-processed])');
+      
+      containers.forEach(container => {
+        // 标记为已处理
+        container.setAttribute('data-processed', 'true');
+        
+        const contentDiv = container.querySelector('.ai-chat-content');
+        const question = contentDiv.getAttribute('data-question');
+        const containerId = contentDiv.id;
+        
+        // 建立 SSE 连接
+        const url = '/ai/stream?prompt=' + encodeURIComponent(question);
+        const es = new EventSource(url);
+        
+        // 清除打字动画
+        let currentContent = '';
+        
+        es.onmessage = (e) => {
+          const data = e.data;
+          
+          if (data === '[DONE]') {
+            es.close();
+            // 更新状态
+            container.querySelector('.ai-status').textContent = '已完成';
+            return;
+          }
+          
+          // 处理错误消息
+          if (data.startsWith('[Error]')) {
+            contentDiv.innerHTML = `<div class="ai-error">${data}</div>`;
+            container.querySelector('.ai-status').textContent = '发生错误';
+            es.close();
+            return;
+          }
+          
+          // 追加内容
+          currentContent += data;
+          // 移除打字动画并显示实际内容
+          contentDiv.innerHTML = `<div class="ai-answer">${currentContent}</div>`;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        };
+        
+        es.addEventListener('error', (e) => {
+          // 处理连接错误
+          if (es.readyState === EventSource.CLOSED) return;
+          
+          contentDiv.innerHTML = '<div class="ai-error">连接中断，请重试</div>';
+          container.querySelector('.ai-status').textContent = '连接错误';
+          es.close();
+        });
+      });
+    }
+    
+    // 监听消息区域变化，当有新消息添加时处理 AI 聊天容器
+    const observer = new MutationObserver(() => {
+      handleAIChatContainers();
+    });
+    
+    observer.observe(messagesEl, {
+      childList: true,
+      subtree: true
+    });
+
+    // Send
+    function send(){
+      const text = inputEl.value.trim();
+      if(!text){ return; }
+
+      // 统一走 WebSocket 广播，AI 触发逻辑移至 onmessage
+      if(ws && ws.readyState === 1){
+        ws.send(JSON.stringify({ nickname, text }));
+        inputEl.value = '';
+      }
+    }
+    sendBtn.addEventListener('click', send);
+    inputEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+    });
+
+    // 绑定快捷 @ 功能行为
+    cmdCheng.addEventListener('click', ()=>{
+      inputEl.value = '@成小理 ';
+      inputEl.focus();
+    });
+    cmdMusic.addEventListener('click', ()=>{
+      inputEl.value = '@音乐一下';
+      send();
+    });
+    cmdMovie.addEventListener('click', ()=>{
+      const url = prompt('请输入视频链接（例如 https://v.qq.com/...）');
+      if(!url){ return; }
+      inputEl.value = '@电影 ' + url;
+      send();
+    });
+    cmdWeather.addEventListener('click', ()=>{
+      inputEl.value = '@天气';
+      send();
+    });
+    cmdNews.addEventListener('click', ()=>{
+      inputEl.value = '@新闻';
+      send();
+    });
+    cmdShort.addEventListener('click', ()=>{
+      inputEl.value = '@小视频';
+      send();
+    });
+
+    // Emoji
+    emojiBtn.addEventListener('click', ()=>{
+      inputEl.value += ' 😀';
+      inputEl.focus();
+    });
+
+    // 历史记录占位
+    historyBtn.addEventListener('click', ()=>{
+      alert('历史记录功能正在建设中～');
+    });
+
+    // 退出
+    logoutBtn.addEventListener('click', ()=>{
+      try{ ws.close(); }catch(e){}
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "servers": [
+    {
+      "name": "本地服务器",
+      "http": "http://localhost:8000/"
+    },
+    {
+      "name": "公网服务器",
+      "http": "http://60edhvs70h5u.ngrok.xiaomiqiu123.top/"
+    }
+  ],
+  "ai_config": {
+    "api_key": "sk-oseqgmuynzahsfzptoqjismlzrmuzmhfdrlrkuptwbknpttm",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model_name": "Qwen/Qwen2.5-7B-Instruct"
+  }
+}

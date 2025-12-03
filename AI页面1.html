@@ -1,0 +1,944 @@
+<html lang='zh-CN'>
+        <head >
+        <meta charset='UTF-8'/>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+<title >OODaiP聊天室</title>
+<script src='https://res.gemcoder.com/js/reload.js'></script>
+<script src='https://cdn.tailwindcss.com'></script>
+<link href='https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+<script >tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#8B5A2B',
+        // 复古棕色作为主色调
+        secondary: '#4F7942',
+        // 复古绿色作为辅助色
+        accent: '#E67E22',
+        // 复古橙色作为强调色
+        neutral: '#F5F5DC',
+        // 米色作为中性色
+        dark: '#3E2723' // 深棕色作为深色
+      },
+      fontFamily: {
+        retro: ['"Courier New"', 'monospace']
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite'
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': {
+            transform: 'translateY(0)'
+          },
+          '50%': {
+            transform: 'translateY(-10px)'
+          }
+        }
+      }
+    }
+  }
+};</script>
+<style type='text/tailwindcss'>
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .bg-texture {
+                background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+            }
+            .scrollbar-thumb-rounded {
+                scrollbar-color: rgba(139, 90, 43, 0.5) transparent;
+            }
+            .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+                border-radius: 9999px;
+                background-color: rgba(139, 90, 43, 0.5);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+    </head>
+<body class='bg-neutral bg-texture min-h-screen font-retro text-dark overflow-x-hidden'>
+        <!-- [MODULE] a1b_主应用容器 -->
+<div class='flex flex-col min-h-screen max-w-7xl mx-auto w-full shadow-xl'>
+        <!-- [MODULE] c3d_应用头部 -->
+<header class='bg-primary text-white py-4 px-6 shadow-md relative overflow-hidden'>
+        <div class='absolute top-0 right-0 w-32 h-32 bg-accent/20 rounded-full -mr-16 -mt-16 animate-float'>
+        </div>
+<div class='absolute bottom-0 left-0 w-24 h-24 bg-secondary/20 rounded-full -ml-12 -mb-12 animate-float' style='animation-delay: 2s'>
+        </div>
+<div class='container mx-auto flex justify-between items-center relative z-10'>
+        <div class='flex items-center space-x-3'>
+        <i class='fas fa-comments text-2xl text-accent'>
+        </i>
+<h1 class='text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-shadow'>
+        OODaiP聊天室
+    </h1>
+    </div>
+<div id='user-info' class='hidden items-center space-x-4'>
+        <span class='hidden md:inline-block px-3 py-1 bg-secondary/30 rounded-full text-sm'>
+        <i class='fas fa-user mr-1'>
+        </i>
+<span id='current-user'>
+        </span>
+    </span>
+<button id='logout-btn' class='px-4 py-2 bg-accent hover:bg-accent/80 rounded-full transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5'>
+        <i class='fas fa-sign-out-alt mr-2'>
+        </i>
+<span class='hidden sm:inline'>
+        退出
+    </span>
+    </button>
+    </div>
+    </div>
+    </header>
+<!-- [/MODULE] c3d_应用头部 -- 包含应用标题和用户信息区域 -->
+<!-- [MODULE] e5f_主内容区域 -->
+<main class='flex-grow flex flex-col md:flex-row'>
+        <!-- [MODULE] f7g_登录界面 -->
+<div id='login-screen' class='flex-grow flex flex-col items-center justify-center p-6'>
+        <div class='w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border-2 border-primary/20 transform transition-all duration-500 hover:shadow-primary/20'>
+        <div class='text-center mb-8'>
+        <div class='inline-block p-4 bg-primary/10 rounded-full mb-4'>
+        <i class='fas fa-comments text-4xl text-primary'>
+        </i>
+    </div>
+<h2 class='text-2xl md:text-3xl font-bold text-primary mb-2'>
+        欢迎来到聊天室
+    </h2>
+<p class='text-gray-600'>
+        请登录后开始聊天
+    </p>
+    </div>
+<form id='login-form' class='space-y-6'>
+        <div class='space-y-2'>
+        <label for='nickname' class='block text-sm font-medium text-gray-700'>
+        昵称
+    </label>
+<div class='relative'>
+        <div class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+        <i class='fas fa-user text-primary/70'>
+        </i>
+    </div>
+<input type='text' id='nickname' name='nickname' required class='w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none' placeholder='请输入您的昵称'/>
+    </div>
+    </div>
+<div class='space-y-2'>
+        <label for='password' class='block text-sm font-medium text-gray-700'>
+        密码
+    </label>
+<div class='relative'>
+        <div class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+        <i class='fas fa-lock text-primary/70'>
+        </i>
+    </div>
+<input type='password' id='password' name='password' required class='w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none' placeholder='请输入密码'/>
+    </div>
+<p class='text-xs text-gray-500 italic'>
+        提示：固定密码为 123456
+    </p>
+    </div>
+<div class='space-y-2'>
+        <label for='server' class='block text-sm font-medium text-gray-700'>
+        服务器地址 
+    </label>
+<div class='relative'>
+        <div class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+        <i class='fas fa-server text-primary/70'>
+        </i>
+    </div>
+<select id='server' name='server' required class='w-full pl-10 pr-10 py-3 rounded-lg border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none appearance-none bg-white'>
+        <option value disabled selected>
+        选择服务器
+    </option>
+<option value='http://localhost:8000/'>
+        本地服务器（http）
+    </option>
+<option value='http://60edhvs70h5u.ngrok.xiaomiqiu123.top/'>
+        公网服务器（http）
+    </option>
+    </select>
+<div class='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
+        <i class='fas fa-chevron-down text-primary/50'>
+        </i>
+    </div>
+    </div>
+    </div>
+<button type='submit' class='w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg flex items-center justify-center'>
+        <i class='fas fa-sign-in-alt mr-2'>
+        </i>
+<span >
+        登录
+    </span>
+    </button>
+    </form>
+<div class='mt-6 pt-6 border-t border-gray-200 text-center text-sm text-gray-600'>
+        <p >
+        登录即表示您同意我们的
+<a href='javascript:void(0);' class='text-primary hover:underline'>
+        使用条款
+    </a>
+和
+<a href='javascript:void(0);' class='text-primary hover:underline'>
+        隐私政策
+    </a>
+    </p>
+    </div>
+    </div>
+<div class='mt-8 text-center text-gray-500 text-sm max-w-md'>
+        <p >
+        © 2023 OODaiP聊天室 | 复古哑光风格设计
+    </p>
+    </div>
+    </div>
+<!-- [/MODULE] f7g_登录界面 -- 包含用户登录表单，需要输入昵称、密码(固定密码123456)和选择服务器地址 -->
+<!-- [MODULE] h9i_聊天室界面 -->
+<div id='chat-screen' class='hidden flex-grow flex flex-col h-[calc(100vh-100px)]'>
+        <!-- [MODULE] j0k_聊天消息区域 -->
+<div class='flex-grow flex flex-col md:flex-row overflow-hidden border-t border-primary/10'>
+        <!-- [MODULE] l2m_用户列表 -->
+<div class='w-full md:w-64 bg-white/80 backdrop-blur-sm border-r border-primary/10 hidden md:block'>
+        <div class='p-4 border-b border-primary/10'>
+        <h3 class='font-bold text-lg text-primary flex items-center'>
+        <i class='fas fa-users mr-2'>
+        </i>
+在线用户
+    </h3>
+<p class='text-xs text-gray-500 mt-1'>
+        当前
+<span id='user-count'>
+        0
+    </span>
+人在线
+    </p>
+    </div>
+<div id='user-list' class='p-2 overflow-y-auto h-[calc(100%-60px)] scrollbar-thin scrollbar-thumb-rounded'>
+        <!-- 用户列表将通过JS动态生成 -->
+<div class='text-center text-gray-400 py-10 text-sm'>
+        <i class='fas fa-spinner fa-spin mr-2'>
+        </i>
+正在连接服务器...
+    </div>
+    </div>
+    </div>
+<!-- [/MODULE] l2m_用户列表 -- 显示当前在线用户列表和在线人数统计 -->
+<!-- [MODULE] n4o_聊天消息显示区域 -->
+<div class='flex-grow flex flex-col overflow-hidden'>
+        <div id='message-container' class='flex-grow p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded bg-white/50'>
+        <!-- 系统消息 -->
+<div class='system-message my-4'>
+        <div class='flex items-center justify-center'>
+        <span class='px-4 py-1 bg-primary/10 text-primary text-xs rounded-full'>
+        欢迎来到OODaiP聊天室
+    </span>
+    </div>
+    </div>
+<!-- 消息将通过JS动态生成 -->
+<div id='empty-state' class='text-center py-16 text-gray-400'>
+        <div class='inline-block p-6 bg-gray-100 rounded-full mb-4'>
+        <i class='fas fa-comment-dots text-3xl'>
+        </i>
+    </div>
+<p >
+        开始发送消息，加入聊天吧！
+    </p>
+<p class='text-xs mt-2'>
+        支持@功能：@成小理 @音乐一下 @电影 @天气 @新闻 @小视频
+    </p>
+    </div>
+    </div>
+<!-- [/MODULE] n4o_聊天消息显示区域 -- 显示聊天消息，支持滚动查看历史消息 -->
+<!-- [MODULE] p6q_聊天输入区域 -->
+<div class='border-t border-primary/10 p-4 bg-white/90'>
+        <div class='flex mb-3'>
+        <button id='emoji-btn' class='p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-full transition-colors'>
+        <i class='far fa-smile'>
+        </i>
+    </button>
+<button id='history-btn' class='p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-full transition-colors'>
+        <i class='fas fa-history'>
+        </i>
+    </button>
+<div class='flex-grow'>
+        </div>
+<div class='flex space-x-2'>
+        <button id='mobile-user-list-btn' class='md:hidden p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-full transition-colors'>
+        <i class='fas fa-users'>
+        </i>
+    </button>
+    </div>
+    </div>
+<div class='relative'>
+        <textarea id='message-input' rows='3' class='w-full pr-24 pl-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none scrollbar-thin scrollbar-thumb-rounded' placeholder='输入消息... 支持@功能'>
+        </textarea>
+<button id='send-btn' class='absolute right-2 bottom-2 bg-primary hover:bg-primary/90 text-white rounded-full px-4 py-2 transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5'>
+        <i class='fas fa-paper-plane mr-1'>
+        </i>
+    </button>
+    </div>
+<div class='flex justify-between items-center mt-2 text-xs text-gray-500'>
+        <div >
+        <span id='char-count'>
+        0
+    </span>
+/ 500 字符
+    </div>
+<div >
+        <span class='mr-3'>
+        <i class='fas fa-at mr-1'>
+        </i>
+支持@提及
+    </span>
+<span >
+        <i class='fas fa-smile mr-1'>
+        </i>
+支持表情
+    </span>
+    </div>
+    </div>
+    </div>
+<!-- [/MODULE] p6q_聊天输入区域 -- 提供消息输入框和发送按钮，支持表情和历史记录功能 -->
+    </div>
+<!-- [/MODULE] p6q_聊天输入区域 -->
+    </div>
+<!-- [/MODULE] j0k_聊天消息区域 -->
+    </div>
+<!-- [/MODULE] h9i_聊天室界面 -- 包含用户列表、消息显示区域和消息输入区域 -->
+    </main>
+<!-- [/MODULE] e5f_主内容区域 -- 根据登录状态显示登录界面或聊天室界面 -->
+<!-- [MODULE] r8s_移动端用户列表弹窗 -->
+<div id='mobile-user-modal' class='fixed inset-0 bg-black/50 z-50 hidden flex items-end'>
+        <div class='bg-white w-full max-h-[70vh] rounded-t-3xl shadow-2xl transform transition-transform duration-300 translate-y-full' id='modal-content'>
+        <div class='p-4 border-b flex justify-between items-center'>
+        <h3 class='font-bold text-lg'>
+        在线用户
+    </h3>
+<button id='close-modal' class='p-2 text-gray-500 hover:text-gray-700'>
+        <i class='fas fa-times'>
+        </i>
+    </button>
+    </div>
+<div id='mobile-user-list' class='p-2 overflow-y-auto h-[calc(70vh-60px)] scrollbar-thin scrollbar-thumb-rounded'>
+        <!-- 移动端用户列表将通过JS动态生成 -->
+    </div>
+    </div>
+    </div>
+<!-- [/MODULE] r8s_移动端用户列表弹窗 -- 在移动设备上点击用户列表按钮时显示，展示在线用户 -->
+<!-- [MODULE] t9u_表情选择器 -->
+<div id='emoji-picker' class='fixed bottom-24 left-4 md:left-auto md:right-4 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-40 hidden transform transition-all duration-300'>
+        <div class='p-3 border-b flex justify-between items-center'>
+        <h4 class='font-medium'>
+        表情
+    </h4>
+<button id='close-emoji' class='text-gray-400 hover:text-gray-600'>
+        <i class='fas fa-times'>
+        </i>
+    </button>
+    </div>
+<div class='p-2 overflow-y-auto h-64 scrollbar-thin scrollbar-thumb-rounded' id='emoji-container'>
+        <!-- 表情将通过JS动态生成 -->
+    </div>
+    </div>
+<!-- [/MODULE] t9u_表情选择器 -- 点击表情按钮时显示，允许用户选择并插入表情 -->
+<!-- [MODULE] v0w_提示框 -->
+<div id='toast-container' class='fixed top-4 right-4 z-50 flex flex-col space-y-3'>
+        </div>
+<!-- [/MODULE] v0w_提示框 -- 显示操作结果提示信息 -->
+    </div>
+<!-- [/MODULE] a1b_主应用容器 -- 包含整个应用的所有内容 -->
+<!-- [JSMOD] x2y_登录功能 -->
+<script id='login-script'>document.addEventListener('DOMContentLoaded', function () {
+  // DOM元素
+  var loginScreen = document.getElementById('login-screen');
+  var chatScreen = document.getElementById('chat-screen');
+  var loginForm = document.getElementById('login-form');
+  var nicknameInput = document.getElementById('nickname');
+  var passwordInput = document.getElementById('password');
+  var serverSelect = document.getElementById('server');
+  var userInfo = document.getElementById('user-info');
+  var currentUser = document.getElementById('current-user');
+  var logoutBtn = document.getElementById('logout-btn');
+  var toastContainer = document.getElementById('toast-container');
+  // 检查本地存储中是否有用户信息
+  var savedUser = localStorage.getItem('chatUser');
+  if (savedUser) {
+    try {
+      var user = JSON.parse(savedUser);
+      if (user.nickname && user.server) {
+        nicknameInput.value = user.nickname;
+        serverSelect.value = user.server;
+      }
+    } catch (e) {
+      console.error('解析用户信息失败', e);
+    }
+  }
+  // 登录表单提交处理
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nickname = nicknameInput.value.trim();
+    var password = passwordInput.value.trim();
+    var server = serverSelect.value;
+
+    // 验证输入
+    if (!nickname) {
+      showToast('请输入昵称', 'error');
+      nicknameInput.focus();
+      return;
+    }
+    if (password !== '123456') {
+      showToast('密码错误，固定密码为123456', 'error');
+      passwordInput.focus();
+      return;
+    }
+    if (!server) {
+      showToast('请选择服务器', 'error');
+      serverSelect.focus();
+      return;
+    }
+
+    // 保存用户信息到本地存储
+    localStorage.setItem('chatUser', JSON.stringify({
+      nickname: nickname,
+      server: server
+    }));
+
+    // 更新UI，切换到聊天界面
+    currentUser.textContent = nickname;
+    userInfo.classList.remove('hidden');
+    userInfo.classList.add('flex');
+    loginScreen.classList.add('hidden');
+    chatScreen.classList.remove('hidden');
+
+    // 连接WebSocket服务器（实际项目中这里会有真实的连接代码）
+    connectToServer(server, nickname);
+
+    // 显示登录成功提示
+    showToast("\u6B22\u8FCE\u56DE\u6765\uFF0C".concat(nickname, "\uFF01"), 'success');
+  });
+
+  // 退出登录处理
+  logoutBtn.addEventListener('click', function () {
+    // 断开WebSocket连接（实际项目中这里会有真实的断开连接代码）
+    if (window.ws && window.ws.readyState === WebSocket.OPEN) {
+      window.ws.close(1000, '用户主动退出');
+    }
+
+    // 清空用户信息
+    localStorage.removeItem('chatUser');
+
+    // 重置表单
+    loginForm.reset();
+
+    // 更新UI，切换到登录界面
+    chatScreen.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    userInfo.classList.add('hidden');
+    userInfo.classList.remove('flex');
+
+    // 显示退出成功提示
+    showToast('已退出登录', 'info');
+  });
+
+  // 显示提示框
+  function showToast(message) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
+    var toast = document.createElement('div');
+
+    // 设置样式和类型
+    var typeClasses = {
+      success: 'bg-green-500',
+      error: 'bg-red-500',
+      info: 'bg-primary',
+      warning: 'bg-yellow-500'
+    };
+    toast.className = "toast px-4 py-3 rounded-lg shadow-lg text-white flex items-center transform transition-all duration-500 translate-x-full opacity-0".concat(typeClasses[type] || typeClasses.info);
+
+    // 设置图标
+    var icons = {
+      success: 'fa-check-circle',
+      error: 'fa-exclamation-circle',
+      info: 'fa-info-circle',
+      warning: 'fa-exclamation-triangle'
+    };
+    toast.innerHTML = "<i class=\"fas".concat(icons[type] || icons.info, "mr-2\"></i>\n                    <span>").concat(message, "</span>");
+
+    // 添加到容器
+    toastContainer.appendChild(toast);
+
+    // 显示动画
+    setTimeout(function () {
+      toast.classList.remove('translate-x-full', 'opacity-0');
+    }, 10);
+
+    // 自动关闭
+    setTimeout(function () {
+      toast.classList.add('translate-x-full', 'opacity-0');
+      setTimeout(function () {
+        toast.remove();
+      }, 500);
+    }, 3000);
+  }
+
+  // 连接服务器（模拟）
+  function connectToServer(server, nickname) {
+    // 模拟WebSocket连接
+    window.ws = {
+      readyState: WebSocket.OPEN,
+      close: function close() {}
+    };
+
+    // 模拟连接成功后获取用户列表
+    setTimeout(function () {
+      updateUserList([{
+        id: 1,
+        name: nickname,
+        isSelf: true
+      }, {
+        id: 2,
+        name: '成小理',
+        isSelf: false
+      }, {
+        id: 3,
+        name: '音乐一下',
+        isSelf: false
+      }, {
+        id: 4,
+        name: '电影爱好者',
+        isSelf: false
+      }, {
+        id: 5,
+        name: '天气播报员',
+        isSelf: false
+      }, {
+        id: 6,
+        name: '新闻速递',
+        isSelf: false
+      }, {
+        id: 7,
+        name: '小视频分享',
+        isSelf: false
+      }, {
+        id: 8,
+        name: '复古风',
+        isSelf: false
+      }]);
+    }, 1000);
+
+    // 模拟收到消息
+    setTimeout(function () {
+      receiveMessage({
+        id: 1,
+        user: {
+          id: 2,
+          name: '成小理'
+        },
+        content: '大家好啊！欢迎新朋友加入聊天室！',
+        timestamp: new Date().toISOString()
+      });
+    }, 2000);
+    setTimeout(function () {
+      receiveMessage({
+        id: 2,
+        user: {
+          id: 3,
+          name: '音乐一下'
+        },
+        content: '今天推荐一首复古风的歌曲给大家 🎵',
+        timestamp: new Date().toISOString()
+      });
+    }, 4000);
+  }
+});
+// [/JSMOD] x2y_登录功能 -- 处理用户登录和退出逻辑，管理WebSocket连接状态</script>
+<!-- [JSMOD] z3a_聊天功能 -->
+<script id='chat-script'>document.addEventListener('DOMContentLoaded', function () {
+  // DOM元素
+  var messageInput = document.getElementById('message-input');
+  var sendBtn = document.getElementById('send-btn');
+  var messageContainer = document.getElementById('message-container');
+  var userList = document.getElementById('user-list');
+  var userCount = document.getElementById('user-count');
+  var charCount = document.getElementById('char-count');
+  var emptyState = document.getElementById('empty-state');
+  var historyBtn = document.getElementById('history-btn');
+
+  // 输入字符计数
+  messageInput.addEventListener('input', function () {
+    var count = messageInput.value.length;
+    charCount.textContent = count;
+
+    // 限制最大长度
+    if (count > 500) {
+      messageInput.value = messageInput.value.substring(0, 500);
+      charCount.textContent = 500;
+    }
+
+    // 改变计数颜色
+    if (count > 450) {
+      charCount.classList.add('text-red-500');
+    } else {
+      charCount.classList.remove('text-red-500');
+    }
+  });
+
+  // 发送消息
+  sendBtn.addEventListener('click', sendMessage);
+
+  // 按Enter发送消息，Shift+Enter换行
+  messageInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // 发送消息函数
+  function sendMessage() {
+    var content = messageInput.value.trim();
+    if (!content) return;
+
+    // 清空输入框
+    messageInput.value = '';
+    charCount.textContent = '0';
+
+    // 隐藏空状态提示
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    // 获取当前用户信息（实际项目中从登录状态获取）
+    var currentUser = {
+      id: 1,
+      name: document.getElementById('current-user').textContent
+    };
+
+    // 创建消息对象
+    var message = {
+      id: Date.now(),
+      user: currentUser,
+      content: content,
+      timestamp: new Date().toISOString(),
+      isSelf: true
+    };
+
+    // 添加消息到界面
+    addMessageToUI(message);
+
+    // 滚动到底部
+    scrollToBottom();
+
+    // 模拟发送到服务器并接收（实际项目中这里会有真实的WebSocket发送代码）
+    setTimeout(function () {
+      // 检查是否有@命令
+      var atCommands = ['@成小理', '@音乐一下', '@电影', '@天气', '@新闻', '@小视频'];
+      var hasCommand = false;
+      atCommands.forEach(function (command) {
+        if (content.includes(command)) {
+          hasCommand = true;
+
+          // 模拟命令响应
+          var responses = {
+            '@成小理': '你@我了？有什么事吗？😊',
+            '@音乐一下': '正在为你播放音乐... 🎶（功能开发中）',
+            '@电影': '推荐电影：《复古年代》（功能开发中）',
+            '@天气': '今天天气晴朗，温度25°C（功能开发中）',
+            '@新闻': '最新新闻：聊天室人数突破100人！（功能开发中）',
+            '@小视频': '为你播放热门小视频... 🎬（功能开发中）'
+          };
+
+          // 创建响应消息
+          var responseUser = {
+            id: 0,
+            name: command.substring(1)
+          };
+          var responseMessage = {
+            id: Date.now() + 1,
+            user: responseUser,
+            content: responses[command],
+            timestamp: new Date().toISOString(),
+            isSelf: false
+          };
+
+          // 添加响应消息到界面
+          setTimeout(function () {
+            addMessageToUI(responseMessage);
+            scrollToBottom();
+          }, 1000);
+        }
+      });
+
+      // 如果没有命令，模拟其他用户回复
+      if (!hasCommand && Math.random() > 0.3) {
+        var randomUsers = [{
+          id: 2,
+          name: '成小理'
+        }, {
+          id: 3,
+          name: '音乐一下'
+        }, {
+          id: 4,
+          name: '电影爱好者'
+        }, {
+          id: 5,
+          name: '天气播报员'
+        }];
+        var randomUser = randomUsers[Math.floor(Math.random() * randomUsers.length)];
+        var replies = ['说得对！', '我同意你的观点', '哈哈，太有趣了', '真的吗？', '不错的想法', '我也是这么想的', '太棒了！'];
+        var randomReply = replies[Math.floor(Math.random() * replies.length)];
+        var replyMessage = {
+          id: Date.now() + 2,
+          user: randomUser,
+          content: randomReply,
+          timestamp: new Date().toISOString(),
+          isSelf: false
+        };
+        setTimeout(function () {
+          addMessageToUI(replyMessage);
+          scrollToBottom();
+        }, 2000 + Math.random() * 3000);
+      }
+    }, 500);
+  }
+
+  // 添加消息到界面
+  function addMessageToUI(message) {
+    var messageElement = document.createElement('div');
+    messageElement.className = "message".concat(message.isSelf ? 'self-message' : 'other-message', "mb-4");
+
+    // 格式化时间
+    var time = new Date(message.timestamp);
+    var formattedTime = "".concat(time.getHours().toString().padStart(2, '0'), ":").concat(time.getMinutes().toString().padStart(2, '0'));
+
+    // 处理@提及高亮
+    var contentWithHighlights = message.content.replace(/@([^\s]+)/g, '<span class="text-primary font-medium">$&</span>');
+
+    // 设置消息内容
+    if (message.isSelf) {
+      messageElement.innerHTML = "<div class=\"flex justify-end\">\n                            <div class=\"max-w-[80%]\">\n                                <div class=\"flex items-center justify-end mb-1\">\n                                    <span class=\"text-xs text-gray-500 mr-2\">".concat(formattedTime, "</span>\n                                    <span class=\"font-medium text-sm\">").concat(message.user.name, "</span>\n                                </div>\n                                <div class=\"bg-primary text-white p-3 rounded-2xl rounded-tr-none shadow-md\">\n                                    <p>").concat(contentWithHighlights, "</p>\n                                </div>\n                            </div>\n                        </div>");
+    } else {
+      messageElement.innerHTML = "<div class=\"flex\">\n                            <div class=\"w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mr-3\">\n                                <span class=\"text-xs font-bold\">".concat(message.user.name.charAt(0), "</span>\n                            </div>\n                            <div class=\"max-w-[80%]\">\n                                <div class=\"flex items-center mb-1\">\n                                    <span class=\"font-medium text-sm\">").concat(message.user.name, "</span>\n                                    <span class=\"text-xs text-gray-500 ml-2\">").concat(formattedTime, "</span>\n                                </div>\n                                <div class=\"bg-gray-100 p-3 rounded-2xl rounded-tl-none shadow-sm\">\n                                    <p>").concat(contentWithHighlights, "</p>\n                                </div>\n                            </div>\n                        </div>");
+    }
+
+    // 添加到消息容器
+    messageContainer.appendChild(messageElement);
+  }
+
+  // 接收消息（供WebSocket回调使用）
+  window.receiveMessage = function (message) {
+    // 隐藏空状态提示
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    // 添加消息到界面
+    addMessageToUI({
+      ...message,
+      isSelf: false
+    });
+
+    // 滚动到底部
+    scrollToBottom();
+
+    // 播放提示音（实际项目中实现）
+    // playNotificationSound();
+
+    // 显示桌面通知（如果有权限）
+    if (Notification.permission === 'granted') {
+      new Notification("".concat(message.user.name, "\u8BF4:"), {
+        body: message.content,
+        icon: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b4d21ca173681ae1b2bba3e94c67e5a1.png'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  };
+
+  // 滚动到底部
+  function scrollToBottom() {
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+  }
+
+  // 历史记录按钮点击事件
+  historyBtn.addEventListener('click', function () {
+    showToast('历史记录功能正在建设中', 'info');
+  });
+
+  // 更新用户列表
+  window.updateUserList = function (users) {
+    // 更新用户数量
+    userCount.textContent = users.length;
+
+    // 清空现有列表
+    userList.innerHTML = '';
+
+    // 更新移动端用户列表
+    var mobileUserList = document.getElementById('mobile-user-list');
+    if (mobileUserList) {
+      mobileUserList.innerHTML = '';
+    }
+
+    // 添加用户到列表
+    users.forEach(function (user) {
+      var userElement = document.createElement('div');
+      userElement.className = "user-item p-2 rounded-lg mb-1 flex items-center transition-colors".concat(user.isSelf ? 'bg-primary/10' : 'hover:bg-gray-100');
+      userElement.innerHTML = "<div class=\"w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mr-3\">\n                            <span class=\"text-xs font-bold\">".concat(user.name.charAt(0), "</span>\n                        </div>\n                        <div class=\"flex-grow\">\n                            <p class=\"font-medium text-sm\">").concat(user.name, "</p>\n                        </div>").concat(user.isSelf ? '<span class="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">你</span>' : '', "");
+
+      // 添加点击事件，用于@用户
+      userElement.addEventListener('click', function () {
+        // 如果不是自己才添加@
+        if (!user.isSelf) {
+          messageInput.value += "@".concat(user.name, "");
+          messageInput.focus();
+
+          // 更新字符计数
+          charCount.textContent = messageInput.value.length;
+
+          // 关闭移动端用户列表
+          closeMobileUserModal();
+        }
+      });
+
+      // 添加到桌面用户列表
+      userList.appendChild(userElement);
+
+      // 添加到移动端用户列表
+      if (mobileUserList) {
+        var mobileUserElement = userElement.cloneNode(true);
+        mobileUserList.appendChild(mobileUserElement);
+      }
+    });
+  };
+});
+// [/JSMOD] z3a_聊天功能 -- 处理消息发送、接收和显示，管理用户列表更新</script>
+<!-- [JSMOD] b4c_表情功能 -->
+<script id='emoji-script'>document.addEventListener('DOMContentLoaded', function () {
+  var emojiBtn = document.getElementById('emoji-btn');
+  var emojiPicker = document.getElementById('emoji-picker');
+  var closeEmoji = document.getElementById('close-emoji');
+  var emojiContainer = document.getElementById('emoji-container');
+  var messageInput = document.getElementById('message-input');
+
+  // 常用emoji列表
+  var emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖'];
+
+  // 生成表情选择器内容
+  function renderEmojis() {
+    emojiContainer.innerHTML = '';
+    emojis.forEach(function (emoji) {
+      var emojiBtn = document.createElement('button');
+      emojiBtn.className = 'emoji-btn p-2 rounded-full hover:bg-gray-100 transition-colors';
+      emojiBtn.textContent = emoji;
+      emojiBtn.title = emoji;
+      emojiBtn.addEventListener('click', function () {
+        // 将表情插入到输入框光标位置
+        var cursorPos = messageInput.selectionStart;
+        var textBefore = messageInput.value.substring(0, cursorPos);
+        var textAfter = messageInput.value.substring(cursorPos);
+        messageInput.value = textBefore + emoji + textAfter;
+
+        // 移动光标到表情后面
+        messageInput.selectionStart = cursorPos + 1;
+        messageInput.selectionEnd = cursorPos + 1;
+
+        // 聚焦输入框
+        messageInput.focus();
+
+        // 更新字符计数
+        var charCount = document.getElementById('char-count');
+        charCount.textContent = messageInput.value.length;
+      });
+      emojiContainer.appendChild(emojiBtn);
+    });
+  }
+
+  // 初始化表情选择器
+  renderEmojis();
+
+  // 切换表情选择器显示/隐藏
+  emojiBtn.addEventListener('click', function () {
+    emojiPicker.classList.toggle('hidden');
+
+    // 如果显示，则定位在输入框上方
+    if (!emojiPicker.classList.contains('hidden')) {
+      var inputRect = messageInput.getBoundingClientRect();
+      var pickerRect = emojiPicker.getBoundingClientRect();
+
+      // 调整位置
+      emojiPicker.style.bottom = "".concat(window.innerHeight - inputRect.top + 10, "px");
+    }
+  });
+
+  // 关闭表情选择器
+  closeEmoji.addEventListener('click', function () {
+    emojiPicker.classList.add('hidden');
+  });
+
+  // 点击页面其他地方关闭表情选择器
+  document.addEventListener('click', function (e) {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.classList.add('hidden');
+    }
+  });
+});
+// [/JSMOD] b4c_表情功能 -- 实现表情选择器，允许用户选择并插入表情到消息中</script>
+<!-- [JSMOD] d6e_移动端适配功能 -->
+<script id='mobile-script'>document.addEventListener('DOMContentLoaded', function () {
+  var mobileUserBtn = document.getElementById('mobile-user-list-btn');
+  var mobileUserModal = document.getElementById('mobile-user-modal');
+  var modalContent = document.getElementById('modal-content');
+  var closeModal = document.getElementById('close-modal');
+
+  // 创建移动端用户列表容器
+  var mobileUserList = document.createElement('div');
+  mobileUserList.id = 'mobile-user-list';
+  mobileUserList.className = 'p-2 overflow-y-auto h-[calc(70vh-60px)] scrollbar-thin scrollbar-thumb-rounded';
+  document.getElementById('modal-content').appendChild(mobileUserList);
+
+  // 打开移动端用户列表
+  mobileUserBtn.addEventListener('click', function () {
+    mobileUserModal.classList.remove('hidden');
+    // 触发动画
+    setTimeout(function () {
+      modalContent.classList.remove('translate-y-full');
+    }, 10);
+  });
+
+  // 关闭移动端用户列表
+  closeModal.addEventListener('click', closeMobileUserModal);
+
+  // 点击模态框背景关闭
+  mobileUserModal.addEventListener('click', function (e) {
+    if (e.target === mobileUserModal) {
+      closeMobileUserModal();
+    }
+  });
+
+  // 关闭移动端用户列表函数
+  function closeMobileUserModal() {
+    modalContent.classList.add('translate-y-full');
+    setTimeout(function () {
+      mobileUserModal.classList.add('hidden');
+    }, 300);
+  }
+
+  // 处理窗口大小变化
+  window.addEventListener('resize', function () {
+    // 在大屏幕上关闭移动端用户列表
+    if (window.innerWidth >= 768) {
+      mobileUserModal.classList.add('hidden');
+      modalContent.classList.add('translate-y-full');
+    }
+  });
+});
+// [/JSMOD] d6e_移动端适配功能 -- 实现移动端用户列表弹窗和响应式布局调整</script>
+    </body>
+    </html>

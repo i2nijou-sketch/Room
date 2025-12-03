@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OODaiP聊天室 - 登录</title>
+  <link rel="stylesheet" href="/static/css/base.css" />
+  <style>
+    .login-wrap { display:flex; min-height:100vh; align-items:center; justify-content:center; background:#f5f7fb; }
+    .login-card { width: min(480px, 92vw); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border-radius: 16px; padding: 28px; }
+    .title { font-size: 22px; font-weight: 700; margin-bottom: 18px; text-align:center; }
+    .form-item { margin-bottom: 14px; }
+    label { display:block; font-size:14px; color:#333; margin-bottom:8px; }
+    input, select { width:100%; padding: 10px 12px; border:1px solid #d9dfe6; border-radius: 8px; outline:none; font-size:14px; }
+    input:focus, select:focus { border-color:#4c7cf3; box-shadow:0 0 0 2px rgba(76,124,243,0.15); }
+    .btn { width:100%; padding: 12px; background:#4c7cf3; color:#fff; border:none; border-radius:8px; font-size:16px; cursor:pointer; }
+    .btn:disabled { background:#a6b6ed; cursor:not-allowed; }
+    .tips { font-size:12px; color:#888; margin-top:6px; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="title">OODaiP 聊天室</div>
+      <div class="form-item">
+        <label>昵称</label>
+        <input id="nickname" type="text" placeholder="请输入昵称" />
+      </div>
+      <div class="form-item">
+        <label>密码（固定：123456）</label>
+        <input id="password" type="password" placeholder="请输入密码" />
+      </div>
+      <div class="form-item">
+        <label>服务器地址</label>
+        <select id="server">
+          <option value="">加载中...</option>
+        </select>
+      </div>
+      <button id="loginBtn" class="btn">登录</button>
+      <div class="tips">登录后进入群聊房间</div>
+    </div>
+  </div>
+
+  <script>
+    // 加载服务器列表（改为 http 配置）
+    fetch('/api/servers').then(r=>r.json()).then(data=>{
+      const sel = document.getElementById('server');
+      sel.innerHTML = '';
+      (data.servers||[]).forEach(item=>{
+        const opt = document.createElement('option');
+        opt.value = item.http;
+        opt.textContent = item.name + ' - ' + item.http;
+        sel.appendChild(opt);
+      })
+      if(!sel.value && sel.options.length>0){ sel.value = sel.options[0].value; }
+    })
+
+    // 登录逻辑
+    document.getElementById('loginBtn').addEventListener('click', function(){
+      const nickname = document.getElementById('nickname').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const baseHttp = document.getElementById('server').value;
+      // 从 http 自动派生 ws（http->ws, https->wss），并确保末尾路径为 /ws
+      const ws = (function(url){
+        try{
+          const u = new URL(url);
+          const wsScheme = (u.protocol === 'https:') ? 'wss:' : 'ws:';
+          const pathname = u.pathname.endsWith('/ws') ? u.pathname : (u.pathname.replace(/\/$/, '') + '/ws');
+          return wsScheme + '//' + u.host + pathname;
+        }catch(e){
+          return url.replace(/^http(s)?:\/\//, (m, s) => s ? 'wss://' : 'ws://').replace(/\/$/, '') + '/ws';
+        }
+      })(baseHttp);
+      const isHttpsPage = window.location.protocol === 'https:';
+      if(!nickname){ alert('请输入昵称'); return; }
+      if(password !== '123456'){ alert('密码错误'); return; }
+      if(!ws){ alert('请选择服务器'); return; }
+      // 只用 http/ws：如果当前页面是 https，阻止使用 ws://
+      if (isHttpsPage && ws.startsWith('ws://')) { 
+        alert('当前页面为 HTTPS，不能使用 ws:// 服务器地址，请通过 http 链接访问再选择“公网服务器”。'); 
+        return; 
+      }
+      // 进入聊天室（传递派生后的 ws）
+      const url = '/chat?nickname=' + encodeURIComponent(nickname) + '&ws=' + encodeURIComponent(ws);
+      window.location.href = url;
+    })
+  </script>
+</body>
+</html>
