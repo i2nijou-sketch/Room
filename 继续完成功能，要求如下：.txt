@@ -1,0 +1,54 @@
+继续完成功能，要求如下：
+1、完成@音乐一下功能，规则为：用户发送@音乐一下，你需要通过APIurI地址请求数据，并获得可以播放的音乐源，然后将封面、歌名、播放器通过专有的音乐卡片形式插入到聊天对话界面，要求交互简单，卡片界面美观，以下为API关键信息：
+```
+api-url=https://v2.xxapi.cn/api/randomkuwo
+api key=2f79567355726828
+
+可以用于参考的代码如下
+请求示例：
+import requests
+
+url = "https://v2.xxapi.cn/api/randomkuwo"
+
+payload = {}
+headers = {
+'User-Agent': 'xiaoxiaoapi/1.0.0'
+}
+
+response = requests.request("GET", url, headers = headers, data = payload)
+
+print(response.text)
+
+请求返回的数据示例：
+{
+	"code": 200,
+	"msg": "数据请求成功",
+	"data": {
+		"name": "借过一下",
+		"url": "https://lx-sycdn.kuwo.cn/86350a24f192a877ccab7d05938b9f82/664f5465/resource/n3/37/71/3488058311.mp3",
+		"singer": "周深",
+		"image": "https://img4.kuwo.cn/star/albumcover/500/s3s58/90/3089690657.jpg"
+	}
+}
+
+```
+
+继续完善功能，要求如下：
+1、完成@天气[city]功能，允许用户通过该指令查询指定城市的天气信息，city为用户填写的城市，你需要据此城市去查找相关天气
+2、要求将数据以天气卡片的形式插入到聊天对话界面。
+3、以下是开发所需要用到的api信息
+```
+api-url:http://api.yujn.cn/api/qqtq.php
+
+参考代码示例：
+返回实例：
+城市：长沙
+气温：11℃/4℃
+今日天气实况：气温：12.5℃；风向/风力：东北风 3级；湿度：41%；紫外线强度：强。
+感冒指数：少发，无明显降温，感冒机率较低。
+运动指数：较适宜，气温较低，在户外运动请注意增减衣物。
+过敏指数：极不易发，无需担心过敏，可放心外出，享受生活。
+穿衣指数：较冷，建议着厚外套加毛衣等服装。
+洗车指数：适宜，天气较好，适合擦洗汽车。
+紫外线指数：强，涂擦SPF大于15、PA+防晒护肤品。
+```
